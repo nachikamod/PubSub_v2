@@ -18,11 +18,12 @@ type IPublisherServiceServer struct {
 	pb.UnimplementedPublisherServiceServer
 }
 
+// Initialize http server for websockets and gRPC server
 func initServer() error {
 
+	// since we need two instances of servers we need to run one of them in separate go routine
 	go ws.InitWebsocket()
 
-	// Load config
 	lis, err := net.Listen("tcp", utils.ParseConfig().GRPC_PORT)
 	if err != nil {
 		return err
@@ -49,13 +50,17 @@ func main() {
 	docs.SwaggerInfo.Description = "Pubsub service for allowing user to listen to the queued tasks results"
 	docs.SwaggerInfo.Host = "localhost:6001"
 
+	// Handler server initialization error
 	if err := initServer(); err != nil {
 		log.Fatalln("Error initalizing server : ", err)
 	}
 
 }
 
+// Publish to client message handler
 func (s *IPublisherServiceServer) PublishToClient(ctx context.Context, in *pb.PublishToClient) (*pb.Response, error) {
+	
+	// Get the message and convert to raw json
 	var payloadMap map[string]interface{}
 	json.Unmarshal([]byte(in.GetMessage()), &payloadMap)
 

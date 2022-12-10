@@ -9,6 +9,9 @@ import (
 
 var conf = *ParseConfig()
 
+// Parse config from env
+// In case of development mode allow all origins to access else parse origins from env
+
 func CorsConfigParser() cors.Config {
 
 	if conf.Mode {
@@ -40,6 +43,7 @@ func WsCorsUpgraderParser() websocket.Upgrader {
 
 			var origin = r.Header.Get("origin")
 
+			// Check if origin is in allowed list
 			for _, allowOrigin := range conf.AllowedOrigins {
 				if origin == allowOrigin {
 					return true

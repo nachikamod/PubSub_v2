@@ -40,6 +40,7 @@ func (ps *pool) PublishToClient(clientId string, topic string, message json.RawM
 		// Find the client by id
 		if key == clientId {
 
+			// Format and publish to requested client
 			payload, err := json.Marshal(&Message{
 				Topic:   topic,
 				Message: message,

@@ -16,6 +16,9 @@ type Config struct {
 	WS_WriteBufferSize int
 }
 
+// Parse envrionment variable in different data types
+
+// parse environment variable, if exists return the value and true else return default value and false. Here, true or false denotes if the env exists or not
 func parseEnv(key string, def string) (*string, bool) {
 	env, exists := os.LookupEnv(key)
 
@@ -26,6 +29,7 @@ func parseEnv(key string, def string) (*string, bool) {
 	return &env, true
 }
 
+// Must parse env method parse if env exists else returns default
 func mustParseEnv(key string, def string) *string {
 
 	env, exists := os.LookupEnv(key)
@@ -37,6 +41,7 @@ func mustParseEnv(key string, def string) *string {
 	return &env
 }
 
+// Parse env to array, checks if env exists then parse array from comma separated string else return default array
 func parseEnvToArr(key string, def []string) *[]string {
 
 	arrStr, exists := parseEnv(key, "")
@@ -49,13 +54,14 @@ func parseEnvToArr(key string, def []string) *[]string {
 
 	for i, env := range envs {
 
-		envs[i] = strings.TrimSpace(env)
+		envs[i] = strings.TrimSpace(env) // Remove any leading and trailing white spaces
 
 	}
 
 	return &envs
 }
 
+// Must parse env to int method parse if env exists then convert to integer else returns default
 func mustParseEnvToInt(key string, def int) *int {
 
 	intStr, exists := parseEnv(key, "")
@@ -73,6 +79,7 @@ func mustParseEnvToInt(key string, def int) *int {
 	return &env
 }
 
+// Must parse env to bool method parse if env exists then convert to boolean else returns default
 func mustParseEnvToBool(key string, def int) bool {
 	env := *mustParseEnvToInt(key, def)
 
@@ -86,9 +93,11 @@ func mustParseEnvToBool(key string, def int) bool {
 	return false
 }
 
+// Parse environment variable
 func ParseConfig() *Config {
 	conf := Config{}
 
+	// Each methods accepts two variables - key, default value
 	conf.Mode = mustParseEnvToBool("MODE", 1) // 1 stands for development mode
 	conf.GRPC_PORT = *mustParseEnv("GRPC_PORT", ":6000")
 	conf.WS_PORT = *mustParseEnv("WS_PORT", ":6001")

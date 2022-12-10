@@ -43,6 +43,7 @@ func InitWebsocket() {
 
 }
 
+// Websocket handler
 func wshandler(w http.ResponseWriter, r *http.Request, uid string) {
 	conn, err := wsupgrader.Upgrade(w, r, nil)
 	if err != nil {
@@ -50,12 +51,14 @@ func wshandler(w http.ResponseWriter, r *http.Request, uid string) {
 		return
 	}
 
+	// Check if uid is null/valid if true then close the connection
 	if uid == "" {
 		log.Print("Invalid uid")
 		conn.Close()
 		return
 	}
 
+	// Add client to the connection pool
 	Pool.AddClient(uid, conn)
 
 	for {
