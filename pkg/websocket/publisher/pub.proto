@@ -1,0 +1,19 @@
+syntax = "proto3";
+
+package publisher;
+
+option go_package = "overcompute.io/pubsub";
+
+message publishToClient {
+    string uid = 1;
+    string topic = 2;
+    string message = 3;
+}
+
+message response {
+    bool status = 1;
+}
+
+service PublisherService {
+    rpc PublishToClient(publishToClient) returns (response);
+}

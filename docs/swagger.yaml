@@ -1,0 +1,17 @@
+info:
+  contact: {}
+paths:
+  /ws/{uid}:
+    get:
+      description: Endpoint to connect to the websocket
+      parameters:
+      - description: User id
+        in: path
+        name: uid
+        required: true
+        type: string
+      responses:
+        "200":
+          description: OK
+      summary: Pubsub Service API Document
+swagger: "2.0"
