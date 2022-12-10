@@ -20,7 +20,9 @@ type Message struct {
 
 // Construct a new pool for connections
 func NewPool() *pool {
-	return &pool{}
+	return &pool{
+		Clients: make(map[string]*websocket.Conn),
+	}
 }
 
 // Add client to provided address book

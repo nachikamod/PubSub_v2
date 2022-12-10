@@ -19,6 +19,7 @@ var (
 )
 
 // InitWebsocket godoc
+//
 //	@Summary		Pubsub Service API Document
 //	@Description	Endpoint to connect to the websocket
 //	@Param			uid	path	string	true	"User id"

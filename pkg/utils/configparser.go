@@ -89,7 +89,7 @@ func mustParseEnvToBool(key string, def int) bool {
 func ParseConfig() *Config {
 	conf := Config{}
 
-	conf.Mode = mustParseEnvToBool("MODE", 0) // 0 stands for false
+	conf.Mode = mustParseEnvToBool("MODE", 1) // 1 stands for development mode
 	conf.GRPC_PORT = *mustParseEnv("GRPC_PORT", ":6000")
 	conf.WS_PORT = *mustParseEnv("WS_PORT", ":6001")
 	conf.WS_ReadBufferSize = *mustParseEnvToInt("WS_READ_BUFFER", 1024)

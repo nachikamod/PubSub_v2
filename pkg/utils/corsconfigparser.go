@@ -22,7 +22,6 @@ func CorsConfigParser() cors.Config {
 	}
 }
 
-
 func WsCorsUpgraderParser() websocket.Upgrader {
 	if conf.Mode {
 		return websocket.Upgrader{
