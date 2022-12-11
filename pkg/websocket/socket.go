@@ -51,7 +51,7 @@ func wshandler(w http.ResponseWriter, r *http.Request, uid string) {
 		return
 	}
 
-	// Check if uid is null/valid if true then close the connection
+	// Check if uid is null/invalid if true then close the connection
 	if uid == "" {
 		log.Print("Invalid uid")
 		conn.Close()
