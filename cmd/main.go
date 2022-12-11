@@ -61,7 +61,7 @@ func main() {
 	docs.SwaggerInfo.Description = "Pubsub service for allowing user to listen to the queued tasks results"
 	docs.SwaggerInfo.Host = "localhost:6001"
 
-	// Handler server initialization error
+	// Handle server initialization error
 	if err := initServer(); err != nil {
 		log.Fatalln("Error initalizing server : ", err)
 	}
