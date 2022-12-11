@@ -1,4 +1,4 @@
-package utils
+package config
 
 import (
 	"net/http"
@@ -7,12 +7,10 @@ import (
 	"github.com/gorilla/websocket"
 )
 
-var conf = *ParseConfig()
-
 // Parse config from env
 // In case of development mode allow all origins to access else parse origins from env
 
-func CorsConfigParser() cors.Config {
+func (conf *Config) CorsConfigParser() cors.Config {
 
 	if conf.Mode {
 		return cors.Config{
@@ -25,7 +23,7 @@ func CorsConfigParser() cors.Config {
 	}
 }
 
-func WsCorsUpgraderParser() websocket.Upgrader {
+func (conf *Config) WsCorsUpgraderParser() websocket.Upgrader {
 	if conf.Mode {
 		return websocket.Upgrader{
 			ReadBufferSize:  conf.WS_ReadBufferSize,

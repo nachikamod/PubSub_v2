@@ -10,8 +10,7 @@ import (
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials"
 
-	docs "overcompute.io/pubsub/docs"
-	"overcompute.io/pubsub/pkg/utils"
+	"overcompute.io/pubsub/pkg/config"
 	ws "overcompute.io/pubsub/pkg/websocket"
 	pb "overcompute.io/pubsub/pkg/websocket/publisher"
 )
@@ -23,8 +22,15 @@ type IPublisherServiceServer struct {
 // Initialize http server for websockets and gRPC server
 func initServer() error {
 
+	conf, err := config.ParseConfig()
+
+	if err != nil {
+		return nil
+	}
+
+	wsconf := ws.NewServer(conf)
 	// since we need two instances of servers we need to run one of them in separate go routine
-	go ws.InitWebsocket()
+	go wsconf.InitWebsocket()
 
 	cert, err := tls.LoadX509KeyPair("server.crt", "server.key")
 	if err != nil {
@@ -35,7 +41,7 @@ func initServer() error {
 		Certificates: []tls.Certificate{cert},
 	}
 
-	lis, err := net.Listen("tcp", utils.ParseConfig().GRPC_PORT)
+	lis, err := net.Listen("tcp", conf.GRPC_PORT)
 	if err != nil {
 		return err
 	}
@@ -44,7 +50,7 @@ func initServer() error {
 
 	pb.RegisterPublisherServiceServer(s, &IPublisherServiceServer{})
 
-	log.Println("Listening and serving gRPC on", utils.ParseConfig().GRPC_PORT)
+	log.Println("Listening and serving gRPC on", conf.GRPC_PORT)
 
 	if err := s.Serve(lis); err != nil {
 		return err
@@ -55,11 +61,6 @@ func initServer() error {
 }
 
 func main() {
-
-	docs.SwaggerInfo.Title = "Pubsub API"
-	docs.SwaggerInfo.Version = "1.0"
-	docs.SwaggerInfo.Description = "Pubsub service for allowing user to listen to the queued tasks results"
-	docs.SwaggerInfo.Host = "localhost:6001"
 
 	// Handle server initialization error
 	if err := initServer(); err != nil {

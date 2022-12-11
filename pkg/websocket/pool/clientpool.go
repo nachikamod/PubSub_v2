@@ -47,7 +47,7 @@ func (ps *pool) PublishToClient(clientId string, topic string, message json.RawM
 			})
 
 			if err != nil {
-				log.Printf("Failed to publish message")
+				log.Println("Failed to publish message :", err)
 				return
 			}
 

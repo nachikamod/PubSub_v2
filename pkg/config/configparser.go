@@ -1,7 +1,8 @@
-package utils
+package config
 
 import (
-	"log"
+	"errors"
+	"fmt"
 	"os"
 	"strconv"
 	"strings"
@@ -30,7 +31,7 @@ func parseEnv(key string, def string) (*string, bool) {
 }
 
 // Must parse env method parse if env exists else returns default
-func mustParseEnv(key string, def string) *string {
+func parseEnvOrDefault(key string, def string) *string {
 
 	env, exists := os.LookupEnv(key)
 
@@ -62,48 +63,74 @@ func parseEnvToArr(key string, def []string) *[]string {
 }
 
 // Must parse env to int method parse if env exists then convert to integer else returns default
-func mustParseEnvToInt(key string, def int) *int {
+func parseEnvToInt(key string, def int) (*int, error) {
 
 	intStr, exists := parseEnv(key, "")
 
 	if !exists {
-		return &def
+		return &def, nil
 	}
+
+	var env int = 0
 
 	env, err := strconv.Atoi(*intStr)
 
 	if err != nil {
-		log.Fatalf("Error converting env to int : %v", err)
+		return &env, err
 	}
 
-	return &env
+	return &env, nil
 }
 
 // Must parse env to bool method parse if env exists then convert to boolean else returns default
-func mustParseEnvToBool(key string, def int) bool {
-	env := *mustParseEnvToInt(key, def)
+func parseEnvToBool(key string, def int) (bool, error) {
 
-	if env == 1 {
-		return true
-	} else if env == 0 {
-		return false
-	} else {
-		log.Fatalf("Error converting env to bool : parsing \"%v\" : invalid env %v", key, env)
+	env, err := parseEnvToInt(key, def)
+
+	if err != nil {
+		return false, err
 	}
-	return false
+
+	if *env == 1 {
+		return true, nil
+	} else if *env == 0 {
+		return false, nil
+	}
+
+	return false, errors.New(fmt.Sprintf("Error converting env to bool : parsing \"%v\" : invalid env %v", key, env))
 }
 
 // Parse environment variable
-func ParseConfig() *Config {
+func ParseConfig() (*Config, error) {
 	conf := Config{}
-
 	// Each methods accepts two variables - key, default value
-	conf.Mode = mustParseEnvToBool("MODE", 1) // 1 stands for development mode
-	conf.GRPC_PORT = *mustParseEnv("GRPC_PORT", ":6000")
-	conf.WS_PORT = *mustParseEnv("WS_PORT", ":6001")
-	conf.WS_ReadBufferSize = *mustParseEnvToInt("WS_READ_BUFFER", 1024)
-	conf.WS_WriteBufferSize = *mustParseEnvToInt("WS_WRITE_BUFFER", 1024)
+	mode, err := parseEnvToBool("MODE", 1) // 1 stands for development mode
+
+	if err != nil {
+		return &conf, err
+	}
+
+	conf.Mode = mode
+
+	conf.GRPC_PORT = *parseEnvOrDefault("GRPC_PORT", ":6000")
+	conf.WS_PORT = *parseEnvOrDefault("WS_PORT", ":6001")
+	rbs, err := parseEnvToInt("WS_READ_BUFFER", 1024)
+
+	if err != nil {
+		return &conf, err
+	}
+
+	conf.WS_ReadBufferSize = *rbs
+
+	wbs, err := parseEnvToInt("WS_WRITE_BUFFER", 1024)
+
+	if err != nil {
+		return &conf, err
+	}
+
+	conf.WS_WriteBufferSize = *wbs
+
 	conf.AllowedOrigins = *parseEnvToArr("ALLOWED_ORIGINS", []string{"*"})
 
-	return &conf
+	return &conf, err
 }
