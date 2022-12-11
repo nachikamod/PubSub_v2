@@ -15,6 +15,7 @@ type Config struct {
 	AllowedOrigins     []string
 	WS_ReadBufferSize  int
 	WS_WriteBufferSize int
+	WS_MaxConnections  int
 }
 
 // Parse envrionment variable in different data types
@@ -131,6 +132,14 @@ func ParseConfig() (*Config, error) {
 	conf.WS_WriteBufferSize = *wbs
 
 	conf.AllowedOrigins = *parseEnvToArr("ALLOWED_ORIGINS", []string{"*"})
+
+	wsmc, err := parseEnvToInt("WS_MAX_CONNECTIONS", 10)
+
+	if err != nil {
+		return &conf, err
+	}
+
+	conf.WS_MaxConnections = *wsmc
 
 	return &conf, err
 }

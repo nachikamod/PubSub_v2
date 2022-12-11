@@ -31,6 +31,16 @@ func (wsconf *WSConf) InitWebsocket() {
 	r := gin.Default()
 
 	r.GET("/ws/:uid", func(ctx *gin.Context) {
+
+		if len(Pool.Clients) >= wsconf.conf.WS_MaxConnections {
+			log.Println("Clients pool capacity reached maximum")
+			ctx.JSON(http.StatusTooManyRequests, gin.H{
+				"message": "Clients connection capacity reached maximum",
+			})
+			return
+
+		}
+
 		wsconf.wshandler(ctx.Writer, ctx.Request, ctx.Param("uid"))
 	})
 
