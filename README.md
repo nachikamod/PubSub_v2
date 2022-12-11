@@ -1,5 +1,5 @@
 # PubSub_v2
-PubSub_v2 is an websocket microservice. It accepts messages from internal services through its inbuilt gRPC server. 
+PubSub_v2 is an websocket connections handler microservice. It accepts messages from internal services through its inbuilt gRPC server. 
 
 Message body includes, 
 * uid - Destination/Target identification id
