@@ -34,27 +34,23 @@ func (ps *pool) AddClient(uid string, conn *websocket.Conn) {
 // Publish message to perticular client
 func (ps *pool) PublishToClient(clientId string, topic string, message json.RawMessage) {
 
-	// Iterate over registerd clients
-	for key, conn := range ps.Clients {
+	client, found := ps.Clients[clientId]
 
-		// Find the client by id
-		if key == clientId {
+	if found {
+		payload, err := json.Marshal(&Message{
+			Topic:   topic,
+			Message: message,
+		})
 
-			// Format and publish to requested client
-			payload, err := json.Marshal(&Message{
-				Topic:   topic,
-				Message: message,
-			})
-
-			if err != nil {
-				log.Println("Failed to publish message :", err)
-				return
-			}
-
-			conn.WriteMessage(1, payload)
+		if err != nil {
+			log.Println("Failed to publish message :", err)
 			return
 		}
+
+		client.WriteMessage(1, payload)
+		return
 	}
+
 }
 
 // Remove client from address book
@@ -63,7 +59,7 @@ func (ps *pool) RemoveClient(con *websocket.Conn) {
 	for key, conn := range ps.Clients {
 
 		// Find the client by adress
-		if conn.RemoteAddr().String() == con.RemoteAddr().String() {
+		if conn == con {
 			delete(ps.Clients, key) // remove the client
 			log.Printf("Client : (%s) disconnected", key)
 			break

@@ -3,9 +3,9 @@ package websocket
 import (
 	"log"
 	"net/http"
-	"strings"
 
 	"github.com/gin-gonic/gin"
+	"github.com/gorilla/websocket"
 
 	"overcompute.io/pubsub/pkg/config"
 	"overcompute.io/pubsub/pkg/websocket/pool"
@@ -63,7 +63,7 @@ func (wsconf *WSConf) wshandler(w http.ResponseWriter, r *http.Request, uid stri
 
 	for {
 		if _, _, err := conn.ReadMessage(); err != nil {
-			if strings.Contains(err.Error(), "close") {
+			if websocket.IsUnexpectedCloseError(err, websocket.CloseGoingAway) {
 
 				Pool.RemoveClient(conn)
 
