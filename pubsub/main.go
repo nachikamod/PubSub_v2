@@ -2,13 +2,11 @@ package main
 
 import (
 	"context"
-	"crypto/tls"
 	"encoding/json"
 	"log"
 	"net"
 
 	"google.golang.org/grpc"
-	"google.golang.org/grpc/credentials"
 
 	"overcompute.io/pubsub/pkg/config"
 	ws "overcompute.io/pubsub/pkg/websocket"
@@ -25,28 +23,25 @@ func initServer() error {
 	conf, err := config.ParseConfig()
 
 	if err != nil {
-		return nil
+		return err
+	}
+
+	creds, err := config.ParseTransportCreds()
+
+	if err != nil {
+		return err
 	}
 
 	wsconf := ws.NewServer(conf)
 	// since we need two instances of servers we need to run one of them in separate go routine
 	go wsconf.InitWebsocket()
 
-	cert, err := tls.LoadX509KeyPair("server.crt", "server.key")
-	if err != nil {
-		return err
-	}
-
-	tlsConfig := &tls.Config{
-		Certificates: []tls.Certificate{cert},
-	}
-
 	lis, err := net.Listen("tcp", conf.GRPC_PORT)
 	if err != nil {
 		return err
 	}
 
-	s := grpc.NewServer(grpc.Creds(credentials.NewTLS(tlsConfig)))
+	s := grpc.NewServer(grpc.Creds(*creds))
 
 	pb.RegisterPublisherServiceServer(s, &IPublisherServiceServer{})
 
